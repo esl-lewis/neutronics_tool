@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  5 13:53:44 2018
-
-@author: fhs33517
-"""
-
 #FORMAT TO FLUKA
 import re
 import pandas as pd 
@@ -44,9 +37,8 @@ count0 = 0
 
 flux = []
 
-""" FISPACT input takes integer values (here in days) for when beam was on/off and 
-the beam flux for that set of dates. This loop extracts that information from the
-dataframe and appends it to the empty sets 'flux' and 'countdays'
+""" This loop extracts no. of days beam was on/off and flux amplitude from
+days it was on and appends it to the empty sets 'flux' and 'countdays'
 """
 for i in range(0,maxlen):
     if df[i] > 0 and (df[i]) == (df[i+1]):
@@ -69,7 +61,7 @@ countdays = [x * 24 * 60 * 60 for x in countdays]
 
 # round down both flux and second values to 3 sf
 def round_to_4sf(x):
-    """ note, change value in front of int to change no. of sfs we round to
+    """ note: change value in front of int to change no. of sfs we round to
     """
     if x == 0:
         return 0
@@ -97,7 +89,7 @@ print(type(flux[0]))
 print(type(flux[1]))
 # changes 0.0 to 0, need to change back
 
-
+""" maybe don't need this anymore
 startbeamON = 0
 #Checks to see if first day the beam was on or off
 if flux[0] == '0.0':
@@ -106,110 +98,65 @@ else:
     startbeamON = True
 
 print(startbeamON)
+"""
 
 tot = len(countdays) 
 
 #write to FLUKA file
-file = open("fluka_test.i","w")
-#All of these conditionals are to satisfy FLUKAS input requirements.
-#Beam must flicker ON then OFF 
 
-for i in range(0,(tot)):
-    print(i)
-    if i == 0 and startbeamON == True:
-        # 0 = on, even == on
-        file.write("\n* Beam ON: " + str(countdays[i]) +" seconds,Beam OFF: "+ str(countdays[i+1]))
-        file.write(" seconds,Beam ON: "+str(countdays[i+2])+"\n")
-        
-        file.write("IRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
+file = open("fluka_test.i","r+")
+# **** put something here to overwrite previous file ****  
+#The conditionals are to satisfy FLUKAS input requirements.
+#These ensure beam flickers ON then OFF for corresponding values of flux
+
+for i in range(0,tot): #could do step 3
     
-    elif i == 0 and startbeamON == False:
-        # 0 = off, even == off
-        file.write("\n* Beam OFF: " + str(countdays[i]) +" seconds,Beam ON: "+ str(countdays[i+1]))
-        file.write(" seconds,Beam OFF: "+str(countdays[i+2])+"\n")
-        
-        file.write("IRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-    
-    
-    # for the end bits
-    elif tot % 3 == 1 and i == tot - 1:
-        if i % 2 == 0 and startbeamON == True:
-            file.write("\n* Beam ON: " + str(countdays[i]))
-            file.write("IRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-        
-        elif i % 2 != 0 and startbeamON == True:
-            file.write("\n* Beam OFF: " + str(countdays[i]))
-            file.write("IRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-                
-        elif i % 2 == 0 and startbeamON == False:
-            file.write("\n* Beam OFF: " + str(countdays[i]))
-            file.write("IRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-          
-        elif i % 2 != 0 and startbeamON == False:
-            file.write("\n* Beam ON: " + str(countdays[i]))
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-        
-        
-            
-    elif tot % 3 == 2 and i == tot - 2: 
-        if i % 2 == 0 and startbeamON == True:
-            file.write("\n* Beam OFF: " + str(countdays[i]) +" seconds,Beam ON: "+ str(countdays[i+1]))
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+"."+str(flux[i+1])+" ")
-        elif i % 2 != 0 and startbeamON == True:
-            file.write("\n* Beam OFF: " + str(countdays[i]) +" seconds,Beam ON: "+ str(countdays[i+1]))
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+"."+str(flux[i+1])+" ")
-        elif i % 2 == 0 and startbeamON == False:
-            file.write("\n* Beam ON: " + str(countdays[i]) +" seconds,Beam OFF: "+ str(countdays[i+1]))
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+"."+str(flux[i+1])+" ")
-        elif i % 2 != 0 and startbeamON == False:
-            file.write("\n* Beam ON: " + str(countdays[i]) +" seconds,Beam OFF: "+ str(countdays[i+1]))
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+". "+str(flux[i+1])+" ")
-    
-    
-    elif tot % 3 == 0 and i == tot - 3:
-        if i % 2 == 0 and startbeamON == True:
-            file.write("\n* Beam ON: " + str(countdays[i]) +" seconds,Beam OFF: "+ str(countdays[i+1])+" seconds,Beam ON: "+str(countdays[i+2])+"\n")
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+"."+str(flux[i+1])+" "+str(countdays[i+2])+"."+str(flux[i+2]))
-        elif i % 2 != 0 and startbeamON == True:
-           file.write("\n* Beam OFF: " + str(countdays[i]) +" seconds,Beam ON: "+ str(countdays[i+1])+" seconds,Beam OFF: "+str(countdays[i+2])+"\n")
-           file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+"."+str(flux[i+1])+" "+str(countdays[i+2])+"."+str(flux[i+2]))
-        elif i % 2 == 0 and startbeamON == False:
-            file.write("\n* Beam OFF: " + str(countdays[i]) +" seconds,Beam ON: "+ str(countdays[i+1])+" seconds,Beam OFF: "+str(countdays[i+2])+"\n")
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+"."+str(flux[i+1])+" "+str(countdays[i+2])+"."+str(flux[i+2]))
-        elif i % 2 != 0 and startbeamON == False:
-            file.write("\n* Beam ON: " + str(countdays[i]) +" seconds,Beam OFF: "+ str(countdays[i+1])+" seconds,Beam ON: "+str(countdays[i+2])+"\n")
-            file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" "+str(countdays[i+1])+". "+str(flux[i+1])+" "+str(countdays[i+2])+". "+str(flux[i+2]))
-       
-     
-     #for the beginning of lines    
-     
-    elif i % 3 == 0 and i % 2 == 0 and startbeamON == True:
-        # even        
-        file.write("\n* Beam ON: " + str(countdays[i]) +" seconds,Beam OFF: "+ str(countdays[i+1]))
-        file.write(" seconds,Beam ON: "+str(countdays[i+2]))
-        file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-    
-    elif i % 3 == 0 and i % 2 != 0 and startbeamON == True:
-        # odd 
-        file.write("\n* Beam OFF: " + str(countdays[i]) +" seconds,Beam ON: "+ str(countdays[i+1]))
-        file.write(" seconds,Beam OFF: "+str(countdays[i+2]))
-        file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-        
-    elif i % 3 == 0 and i % 2 != 0 and startbeamON == False:
-        file.write("\n* Beam ON: " + str(countdays[i]) +" seconds,Beam OFF: "+ str(countdays[i+1]))
-        file.write(" seconds,Beam ON: "+str(countdays[i+2]))
-        file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-        
-    elif i % 3 == 0 and i % 2 == 0 and startbeamON == False:
-        file.write("\n* Beam OFF: " + str(countdays[i]) +" seconds,Beam ON: "+ str(countdays[i+1]))
-        file.write(" seconds,Beam OFF: "+str(countdays[i+2]))
-        file.write("\nIRRPROFI   "+str(countdays[i])+". "+str(flux[i])+" ")
-        
-        #  middle of lines
+    # write the comment lines 
+    if flux[i] == '0.0' and i % 3 == 2: #end of line
+        file.write("Beam OFF: "+str(countdays[i])+" seconds\n")
+    elif flux[i] != '0.0' and i % 3 == 2:
+        file.write("Beam ON: "+str(countdays[i])+" seconds\n")
+    elif flux[i] == '0.0' and i % 3 == 0: # beginning of line
+        file.write("* Beam OFF: "+str(countdays[i])+" seconds,")
+    elif flux[i] != '0.0' and i % 3 == 0: # beginning of line
+        file.write("* Beam ON: "+str(countdays[i])+" seconds,")
+    elif flux[i] == '0.0':
+        file.write("Beam OFF: "+str(countdays[i])+" seconds,")
     else:
-        file.write(" "+str(countdays[i])+". "+str(flux[i])+" ")
+        file.write("Beam ON: "+str(countdays[i])+" seconds,")     
 
+file.close()
 
+    
+# now write the IRRPROFI lines
+with open("fluka_test.i","r+") as file:
+    lines = file.readlines()             
+    numlines = len(lines) 
+    print("THIS IS NUMLINES=",numlines)
+
+    x = -3
+    for j in range(0,numlines):
+        x = x + 3    
+        print("I'm x:",x)
+        if tot % 3 == 1 and x == tot: # end bit
+            irrprofi = str("IRRPROFI   "+str(countdays[x])+" "+str(flux[x]))
+        elif tot % 3 == 2 and x == tot - 1: # end bit
+            irrprofi = str("IRRPROFI   "+str(countdays[x])+" "+str(flux[x])+" "
+                           +str(countdays[x+1])+" "+str(flux[x+1]))
+        else: 
+            irrprofi = str("IRRPROFI   "+str(countdays[x])+" "+str(flux[x])+" "
+                           +str(countdays[x+1])+" "+str(flux[x+1])+" "
+                           +str(countdays[x+2]) +" "+str(flux[x+2])+"\n")   
+        
+        print("hi I'm j:",j)
+        lines.insert(2*j+1,irrprofi)
+    
+    lines = "".join(lines)
+    file.seek(0)
+    file.write(lines)
+    file.truncate()
+
+file.close()        
 
 
 
