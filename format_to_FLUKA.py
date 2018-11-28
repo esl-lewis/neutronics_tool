@@ -87,18 +87,6 @@ print(flux)
 
 print(type(flux[0]))
 print(type(flux[1]))
-# changes 0.0 to 0, need to change back
-
-""" maybe don't need this anymore
-startbeamON = 0
-#Checks to see if first day the beam was on or off
-if flux[0] == '0.0':
-    startbeamON = False
-else:
-    startbeamON = True
-
-print(startbeamON)
-"""
 
 tot = len(countdays) 
 
@@ -113,17 +101,17 @@ for i in range(0,tot): #could do step 3
     
     # write the comment lines 
     if flux[i] == '0.0' and i % 3 == 2: #end of line
-        file.write("Beam OFF: "+str(countdays[i])+" seconds\n")
+        file.write("Beam OFF: "+str(countdays[i])+". seconds\n")
     elif flux[i] != '0.0' and i % 3 == 2:
-        file.write("Beam ON: "+str(countdays[i])+" seconds\n")
+        file.write("Beam ON: "+str(countdays[i])+". seconds\n")
     elif flux[i] == '0.0' and i % 3 == 0: # beginning of line
-        file.write("* Beam OFF: "+str(countdays[i])+" seconds,")
+        file.write("* Beam OFF: "+str(countdays[i])+". seconds,")
     elif flux[i] != '0.0' and i % 3 == 0: # beginning of line
-        file.write("* Beam ON: "+str(countdays[i])+" seconds,")
+        file.write("* Beam ON: "+str(countdays[i])+". seconds,")
     elif flux[i] == '0.0':
-        file.write("Beam OFF: "+str(countdays[i])+" seconds,")
+        file.write("Beam OFF: "+str(countdays[i])+". seconds,")
     else:
-        file.write("Beam ON: "+str(countdays[i])+" seconds,")     
+        file.write("Beam ON: "+str(countdays[i])+". seconds,")     
 
 file.close()
 
@@ -139,14 +127,23 @@ with open("fluka_test.i","r+") as file:
         x = x + 3    
         print("I'm x:",x)
         if tot % 3 == 1 and x == tot: # end bit
-            irrprofi = str("IRRPROFI   "+str(countdays[x])+" "+str(flux[x]))
+            irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
+                           +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
+                           +str(flux[x]))
         elif tot % 3 == 2 and x == tot - 1: # end bit
-            irrprofi = str("IRRPROFI   "+str(countdays[x])+" "+str(flux[x])+" "
-                           +str(countdays[x+1])+" "+str(flux[x+1]))
+            irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
+                           +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
+                           +str(flux[x])+(9-len(str(countdays[x+1])))*" "
+                           +str(countdays[x+1])+"."+(10-len(str(flux[x+1])))*" "
+                           +str(flux[x+1]))
         else: 
-            irrprofi = str("IRRPROFI   "+str(countdays[x])+" "+str(flux[x])+" "
-                           +str(countdays[x+1])+" "+str(flux[x+1])+" "
-                           +str(countdays[x+2]) +" "+str(flux[x+2])+"\n")   
+            irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
+                           +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
+                           +str(flux[x])+(9-len(str(countdays[x+1])))*" "
+                           +str(countdays[x+1])+"."+(10-len(str(flux[x+1])))*" "
+                           +str(flux[x+1])+(9-len(str(countdays[x+2])))*" "
+                           +str(countdays[x+2]) +"."+(10-len(str(flux[x+2])))*" "
+                           +str(flux[x+2])+"\n")   
         
         print("hi I'm j:",j)
         lines.insert(2*j+1,irrprofi)
@@ -155,8 +152,8 @@ with open("fluka_test.i","r+") as file:
     file.seek(0)
     file.write(lines)
     file.truncate()
+    
+   
+
 
 file.close()        
-
-
-
