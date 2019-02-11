@@ -1,4 +1,4 @@
-# neutronicstool
+# neutronics_tool
 
 This tool plots the beam current of a neutron spallation. It takes an excel spreadsheet as input and converts the data into formats fit for the FISPACT, CINDER and FLUKA simulation packages.
 It allows a user to select dates between which to plot a graph of the accelerator beam cycle behaviour over time. 
