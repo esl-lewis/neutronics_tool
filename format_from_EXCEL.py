@@ -8,10 +8,11 @@ import re
 import pandas as pd
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
 
 from pandas import ExcelWriter
 from pandas import ExcelFile
+
+import utilities
 
 
 def getdate():
@@ -118,9 +119,5 @@ if __name__ == "__main__":
 
     df2 = formatExcel('cyclemainoperationalparameters.xlsx')
     # select from menu which file to load
+    utilities.plot_irrad(df)
 
-    """Plots beam current cycle against time."""
-    plt.figure()
-    x = df2.index
-    y = df2["Average µA"]
-    plt.step(x, y)
