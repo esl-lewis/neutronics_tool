@@ -14,3 +14,12 @@ def plot_irrad(df):
     x = df.index
     y = df["Average µA"]
     plt.step(x, y)
+
+
+def currentTOflux(I):
+    """ Converts beam current (µA) into flux
+    """
+    I = I/1e6  # conversion from microamps to amps
+    qp = 1.6e-19  # charge of proton in Coulombs
+    flux = I / (qp)
+    return flux

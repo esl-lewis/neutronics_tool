@@ -2,21 +2,12 @@
 from math import log10, floor
 
 from format_from_EXCEL import formatExcel
+import utilities as ut
 
 df = formatExcel('cyclemainoperationalparameters.xlsx')
 
-
-def currentTOflux(I):
-    """ Converts beam current (µA) into flux
-    """
-    I = I/1e6  # conversion from microamps to amps
-    qp = 1.6e-19  # charge of proton in Coulombs
-    flux = I / (qp)
-    return flux
-
-df = df.apply(lambda x: currentTOflux(x['Average µA']), axis=1)
+df = df.apply(lambda x: ut.currentTOflux(x['Average µA']), axis=1)
 # Apply currentTOflux function down the current column
-
 
 maxlen = len(df.index)-1
 
