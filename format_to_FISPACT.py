@@ -3,8 +3,6 @@
 Formats the data from dataframe into FISPACT input file
 
 """
-import pandas as pd
-import numpy as np
 
 from format_from_EXCEL import formatExcel
 

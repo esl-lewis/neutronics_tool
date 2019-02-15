@@ -6,11 +6,6 @@ needs xlrd package
 
 import re
 import pandas as pd
-import numpy as np
-import datetime
-
-from pandas import ExcelWriter
-from pandas import ExcelFile
 
 import utilities
 
@@ -22,7 +17,6 @@ def getdate():
     p = re.compile('[^0-9\s]+')
     while True:
         date = input("Please input date in the format YYYY M D \n")
-        print(date)
         m = p.search(date)  # checks for any non numbers
 
         if m:
@@ -30,9 +24,7 @@ def getdate():
 
         else:
             datelst = date.split()  # splits along whitespace into list of strings
-            print(datelst)
             datelst = list(map(int, datelst))  # converts list of strings into list of integers
-            print(datelst)
             if datelst[1] > 12 or datelst[1] <= 0:
                 print('Your month looks a little funny.')
             if datelst[2] > 31 or datelst[2] <= 0:
@@ -119,5 +111,4 @@ if __name__ == "__main__":
 
     df2 = formatExcel('cyclemainoperationalparameters.xlsx')
     # select from menu which file to load
-    utilities.plot_irrad(df)
-
+    utilities.plot_irrad(df2)
