@@ -3,6 +3,7 @@ from math import log10, floor
 
 from format_from_EXCEL import formatExcel
 import utilities as ut
+import logging
 
 df = formatExcel('cyclemainoperationalparameters.xlsx')
 
@@ -37,7 +38,7 @@ for i in range(0, maxlen):
         count0 = 0
         flux.append(df[i])
     else:
-        print('There is an error here!')
+        logging.debug('There is an error here!')
 
 # convert days into seconds
 countdays = [x * 24 * 60 * 60 for x in countdays]
@@ -65,11 +66,11 @@ def format_E(x):
 
 flux = list(map(format_E, flux))
 
-print(countdays)
-print(flux)
+logging.debug(countdays)
+logging.debug(flux)
 
-print(type(flux[0]))
-print(type(flux[1]))
+logging.debug(type(flux[0]))
+logging.debug(type(flux[1]))
 
 tot = len(countdays)
 
@@ -103,12 +104,12 @@ file.close()
 with open("fluka_test.i", "r+") as file:
     lines = file.readlines()
     numlines = len(lines)
-    print("THIS IS NUMLINES=", numlines)
+    logging.debug("THIS IS NUMLINES= %i", numlines)
 
     x = -3
     for j in range(0, numlines):
         x = x + 3
-        print("I'm x:", x)
+        logging.debug("I'm x: %i", x)
         if tot % 3 == 1 and x == tot:  # end bit
             irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
                            +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
@@ -128,7 +129,7 @@ with open("fluka_test.i", "r+") as file:
                            +str(countdays[x+2]) +"."+(10-len(str(flux[x+2])))*" "
                            +str(flux[x+2])+"\n")
 
-        print("hi I'm j:", j)
+        logging.debug("hi I'm j: %i", j)
         lines.insert(2*j+1, irrprofi)
 
     lines = "".join(lines)

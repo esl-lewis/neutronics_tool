@@ -1,6 +1,7 @@
 # Format to CINDER
 import pandas as pd
 import numpy as np
+import logging
 from math import log10, floor
 
 from format_from_EXCEL import formatExcel

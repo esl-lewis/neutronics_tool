@@ -6,6 +6,11 @@ Title: utility functions for irrad tool
 """
 
 import matplotlib.pyplot as plt
+import logging
+
+def setup_logging():
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+    logging.info("Starting")
 
 
 def plot_irrad(df):

@@ -6,11 +6,14 @@ Formats the data from dataframe into FISPACT input file
 
 from format_from_EXCEL import formatExcel
 import utilities as ut
+import logging
 
 
 def FISPACT_output():
     """ """
-    df = formatExcel('cyclemainoperationalparameters.xlsx')
+    file_name = 'cyclemainoperationalparameters.xlsx'
+    logging.info("Reading file: %s", file_name)
+    df = formatExcel(file_name)
 
     df = df.apply(lambda x: ut.currentTOflux(x['Average µA']), axis=1)
     # Apply currentTOflux function down the current column
@@ -44,7 +47,7 @@ def FISPACT_output():
             count0 = 0
             flux.append(df[i])
         else:
-            print('There is an error here!')
+            logging.debug('There is an error here!')
 
     startbeamON = 0
     # Checks to see if first day the beam was on or off
@@ -54,10 +57,10 @@ def FISPACT_output():
         startbeamON = False
 
     numRuns = len(countdays)
-
     # write to FISPACT input format
     # nuclear data and intital conditions are left to user
-    file = open("fispact_test.i", "w")
+    ofile_name = "fispact_test.i"
+    file = open(ofile_name, "w")
 
     file.write("<< -----get nuclear data----- >>")
     file.write("\n<< -----set initial conditions----- >>")
@@ -80,7 +83,9 @@ def FISPACT_output():
     file.write("\nATOMS \nEND \n* END")
 
     file.close()
+    logging.info("Writing file: %s", ofile_name)
 
 
 if __name__ == "__main__":
+    ut.setup_logging()
     FISPACT_output()

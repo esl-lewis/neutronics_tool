@@ -6,7 +6,7 @@ needs xlrd package
 
 import re
 import pandas as pd
-
+import logging
 import utilities
 
 
@@ -20,17 +20,17 @@ def getdate():
         m = p.search(date)  # checks for any non numbers
 
         if m:
-            print('Looks like you have a typo.')
+            logging.debug('Looks like you have a typo.')
 
         else:
             datelst = date.split()  # splits along whitespace into list of strings
             datelst = list(map(int, datelst))  # converts list of strings into list of integers
             if datelst[1] > 12 or datelst[1] <= 0:
-                print('Your month looks a little funny.')
+                logging.debug('Your month looks a little funny.')
             if datelst[2] > 31 or datelst[2] <= 0:
-                print('Your day value looks strange.')
+               logging.debug('Your day value looks strange.')
             else:
-                print('I work!')
+                logging.debug('I work!')
                 return(datelst)
         # going to have to convert this string of integers into datetime data type
 
@@ -76,8 +76,7 @@ def formatExcel(file):
     # Make empty dataset
     df0 = pd.DataFrame(index=rng, columns=["Average µA"])
     df0 = df0.fillna(0)
-    print(df0)
-
+    
     df['Dates'] = df.apply(lambda x: findrng(x['Start'], x['Finish']), axis=1)
     """Uses findrng function on 'Start' and 'Finish' columns, creates a dataframe
     'Dates' containing a set of days spanning each cycle run.
@@ -108,7 +107,8 @@ def formatExcel(file):
 
 
 if __name__ == "__main__":
-
+    
+    utilities.setup_logging()
     df2 = formatExcel('cyclemainoperationalparameters.xlsx')
     # select from menu which file to load
     utilities.plot_irrad(df2)
