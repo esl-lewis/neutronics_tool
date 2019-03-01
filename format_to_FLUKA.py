@@ -1,19 +1,10 @@
 # FORMAT TO FLUKA
 from math import log10, floor
 
-from format_from_EXCEL import formatExcel
 import utilities as ut
 import logging
 
-df = formatExcel('cyclemainoperationalparameters.xlsx')
-
-df = df.apply(lambda x: ut.currentTOflux(x['Average µA']), axis=1)
-# Apply currentTOflux function down the current column
-
-maxlen = len(df.index)-1
-
-df = df.values
-# Converts to numpy friendly values
+df, maxlen = ut.read_excel('cyclemainoperationalparameters.xlsx')
 
 countdays = []
 countx = 0

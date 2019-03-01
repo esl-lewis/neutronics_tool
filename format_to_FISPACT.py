@@ -4,7 +4,6 @@ Formats the data from dataframe into FISPACT input file
 
 """
 
-from format_from_EXCEL import formatExcel
 import utilities as ut
 import logging
 
@@ -13,14 +12,7 @@ def FISPACT_output():
     """ """
     file_name = 'cyclemainoperationalparameters.xlsx'
     logging.info("Reading file: %s", file_name)
-    df = formatExcel(file_name)
-
-    df = df.apply(lambda x: ut.currentTOflux(x['Average µA']), axis=1)
-    # Apply currentTOflux function down the current column
-
-    maxlen = len(df.index)-1
-    df = df.values
-    # Converts to numpy friendly values
+    df, maxlen = ut.read_excel(file_name)
 
     countdays = []
     countx = 0
@@ -89,3 +81,4 @@ def FISPACT_output():
 if __name__ == "__main__":
     ut.setup_logging()
     FISPACT_output()
+    logging.info("Completed irradiation history production")

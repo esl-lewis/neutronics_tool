@@ -7,10 +7,12 @@ Title: utility functions for irrad tool
 
 import matplotlib.pyplot as plt
 import logging
+from format_from_EXCEL import formatExcel
+
 
 def setup_logging():
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-    logging.info("Starting")
+    logging.info("Starting irradiation history generation")
 
 
 def plot_irrad(df):
@@ -28,3 +30,13 @@ def currentTOflux(I):
     qp = 1.6e-19  # charge of proton in Coulombs
     flux = I / (qp)
     return flux
+
+
+def read_excel(excel_fname):
+    df = formatExcel(excel_fname)
+    df = df.apply(lambda x: currentTOflux(x['Average µA']), axis=1)
+    # Apply currentTOflux function down the current column
+    maxlen = len(df.index)-1
+    df = df.values
+    # Converts to numpy friendly values
+    return df, maxlen
