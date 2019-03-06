@@ -3,89 +3,82 @@
 Formats the data from dataframe into FISPACT input file
 
 """
-import pandas as pd 
-import numpy as np
 
-from format_from_EXCEL import formatExcel
+import utilities as ut
+import logging
 
-df = formatExcel('cyclemainoperationalparameters.xlsx')
 
-def currentTOflux(I):
-    """ Converts beam current (µA) into flux
+def FISPACT_output():
+    """ """
+    file_name = 'cyclemainoperationalparameters.xlsx'
+    logging.info("Reading file: %s", file_name)
+    df, maxlen = ut.read_excel(file_name)
+
+    countdays = []
+    countx = 0
+    count0 = 0
+
+    flux = []
+
+    """ FISPACT input takes integer values (here in days) for when beam was on/off
+        and the beam flux for that set of dates. This loop extracts that
+        information from the dataframe and appends it to the empty sets 'flux'
+        and 'countdays'
     """
-    I = I/1e6 #conversion from microamps to amps
-    qp = 1.6e-19 # charge of proton in Coulombs  
-    flux = I / (qp)
-    return flux
+    for i in range(0, maxlen):
+        if df[i] > 0 and (df[i]) == (df[i+1]):
+            countx += 1
+        elif df[i] > 0 and (df[i]) != (df[i+1]):
+            countdays.append(countx)
+            countx = 0
+            flux.append(df[i])
+        elif df[i] == 0 and (df[i]) == (df[i+1]):
+            count0 += 1
+        elif df[i] == 0 and (df[i]) != (df[i+1]):
+            countdays.append(count0)
+            count0 = 0
+            flux.append(df[i])
+        else:
+            logging.debug('There is an error here!')
 
-df = df.apply(lambda x: currentTOflux(x['Average µA']), axis=1)
-# Apply currentTOflux function down the current column
+    startbeamON = 0
+    # Checks to see if first day the beam was on or off
+    if df[0] > 0:
+        startbeamON = True
+    elif df[0] == 0:
+        startbeamON = False
 
-maxlen = len(df.index)-1
+    numRuns = len(countdays)
+    # write to FISPACT input format
+    # nuclear data and intital conditions are left to user
+    ofile_name = "fispact_test.i"
+    file = open(ofile_name, "w")
 
-df = df.values
-# Converts to numpy friendly values 
+    file.write("<< -----get nuclear data----- >>")
+    file.write("\n<< -----set initial conditions----- >>")
+    file.write("\nFLUX " + str(df[0]))
+    file.write("\nATOMS \nATOMS DOSE 1")
 
-countdays = []
-countx = 0
-count0 = 0
+    file.write("\n<< -----irradiation phase----- >>")
+    file.write("\nTIME " + str(countdays[0]))
+    file.write("\nDAYS \nTAB1 41 \nATOMS")
 
-flux = []
+    for j in range(1, numRuns-2):
+        file.write("\nFLUX " + str(flux[j]))
+        file.write("\nTIME " + str(countdays[j]) + " DAYS")
+        file.write("\nATOMS")
 
-""" FISPACT input takes integer values (here in days) for when beam was on/off and 
-the beam flux for that set of dates. This loop extracts that information from the
-dataframe and appends it to the empty sets 'flux' and 'countdays'
-"""
-for i in range(0,maxlen):
-    if df[i] > 0 and (df[i]) == (df[i+1]):
-        countx += 1
-    elif df[i] > 0 and (df[i]) != (df[i+1]):
-        countdays.append(countx)
-        countx = 0
-        flux.append(df[i])
-    elif df[i] == 0 and (df[i]) == (df[i+1]):
-        count0 += 1
-    elif df[i] == 0 and (df[i]) != (df[i+1]):
-        countdays.append(count0)
-        count0 = 0
-        flux.append(df[i])
-    else:
-        print('There is an error here!')
+    file.write("\n<< -----cooling phase----- >>")
+    file.write("\nFLUX " + str(flux[numRuns-1]))
+    file.write("\nZERO \nNOSTABLE")
+    file.write("\nTIME " + str(countdays[numRuns-1]) + " DAYS")
+    file.write("\nATOMS \nEND \n* END")
 
-startbeamON = 0
-#Checks to see if first day the beam was on or off
-if df[0] > 0:
-    startbeamON = True
-elif df[0] == 0:
-    startbeamON = False
-
-numRuns = len(countdays)
-
-
-# write to FISPACT input format
-# nuclear data and intital conditions are left to user 
-file = open("fispact_test.i","w")
-
-file.write("<< -----get nuclear data----- >>")
-file.write("\n<< -----set initial conditions----- >>") 
-file.write("\nFLUX " + str(df[0]))
-file.write("\nATOMS \nATOMS DOSE 1")
-
-file.write("\n<< -----irradiation phase----- >>")
-file.write("\nTIME " + str(countdays[0]))
-file.write("\nDAYS \nTAB1 41 \nATOMS" )
-
-for j in range(1,numRuns-2):
-    file.write("\nFLUX "+ str(flux[j]) ) 
-    file.write("\nTIME " + str(countdays[j]) + " DAYS")
-    file.write("\nATOMS")       
-
-file.write("\n<< -----cooling phase----- >>")
-file.write("\nFLUX "+ str(flux[numRuns-1]) )
-file.write("\nZERO \nNOSTABLE") 
-file.write("\nTIME " + str(countdays[numRuns-1]) + " DAYS")
-file.write("\nATOMS \nEND \n* END")    
-
-file.close()
+    file.close()
+    logging.info("Writing file: %s", ofile_name)
 
 
+if __name__ == "__main__":
+    ut.setup_logging()
+    FISPACT_output()
+    logging.info("Completed irradiation history production")

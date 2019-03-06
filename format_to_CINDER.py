@@ -1,21 +1,24 @@
-#Format to CINDER
-import pandas as pd 
+# Format to CINDER
+import pandas as pd
 import numpy as np
+import logging
 from math import log10, floor
 
 from format_from_EXCEL import formatExcel
 
-# needs slightly different format_E and rounding 
+# needs slightly different format_E and rounding
 df = formatExcel('cyclemainoperationalparameters.xlsx')
 
+
 def format_E2sf(x):
-        return'{:.1E}'.format(x) 
+        return'{:.1E}'.format(x)
+
 
 def currentTOflux(I):
     """ Converts beam current (µA) into flux
     """
-    I = I/1e6 #conversion from microamps to amps
-    qp = 1.6e-19 # charge of proton in Coulombs  
+    I = I/1e6  # conversion from microamps to amps
+    qp = 1.6e-19  # charge of proton in Coulombs
     flux = I / (qp)
     return flux
 
@@ -24,7 +27,7 @@ df = df.apply(lambda x: currentTOflux(x['Average µA']), axis=1)
 maxlen = len(df.index)-1
 
 df = df.values
-# Converts to numpy friendly values 
+# Converts to numpy friendly values
 
 countdays = []
 flux = []
@@ -32,19 +35,16 @@ flux = []
 countx = 0
 count0 = 0
 
-""" Input takes integer values in days for when beam was on/off and 
-the beam flux for that set of dates. This loop extracts that information from the
-dataframe and appends it to the empty sets 'flux' and 'countdays'
+""" Input takes integer values in days for when beam was on/off and
+    the beam flux for that set of dates. This loop extracts that information
+    from the  dataframe and appends it to the empty sets 'flux' and 'countdays'
 """
-for i in range(0,maxlen):
-    if is_zero:#
+#  TODO
+""" for i in range(0, maxlen):
+    if is_zero:
         if diff:
             wdas
-        else:
-            
-       else:
-    
-    
+"""
     if df[i] > 0 and (df[i]) == (df[i+1]):
         countx += 1
     elif df[i] > 0 and (df[i]) != (df[i+1]):
@@ -66,7 +66,7 @@ FACTOR = "1.0E1"
 FACTOR0 = "0.E0"
 
 
-file = open("cinder_input","w")
+file = open("cinder_input", "w")
 
 # Title
 file.write("(Title) Tungsten target and proton beam\n")
@@ -85,14 +85,14 @@ file.write("(Material name)Tungsten target\n")
 
 # Number of timesteps in campaign and flux factor for all fluxes in campaign
 
-# Timestep length and units of timestep 
-for i in range(0,len(countdays)):
+# Timestep length and units of timestep
+for i in range(0, len(countdays)):
     if flux[i] != 0.0:
         file.write("1 {}\n".format(FACTOR))
         file.write("     "+str(countdays[i])+" "+"'d'"+"\n")
     elif flux[i] == 0.0:
         file.write("1"+" "+FACTOR0+"\n")
         file.write("     "+str(countdays[i])+" "+"'d'"+"\n")
-        
+
 file.close()
 
