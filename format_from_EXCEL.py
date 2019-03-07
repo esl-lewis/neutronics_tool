@@ -28,19 +28,29 @@ def get_dates():
     """
     date1 = input("Choose start date with format YYYY-MM-DD: ")
     validate_date(date1)
+    date1 = datetime.datetime.strptime(date1,"%Y-%m-%d")
     
     date2 = input("Choose end date with format YYYY-MM-DD: ")
     validate_date(date2)
+    date2 = datetime.datetime.strptime(date2,"%Y-%m-%d")
     
+    # this will need adjusting between datasets
+    data_start_date = datetime.datetime.strptime("1998-03-25","%Y-%m-%d")
+    data_end_date = datetime.datetime.now()
+    
+    if (date1<data_start_date) or (date2<data_start_date):
+        print("Warning: Date selected is before data collection began.")
+    elif (date1>data_end_date) or (date2>data_end_date):
+        print("Warning: Date selected is after todays date.")
     
     if date1>date2:
-        print("Start date is before end date. Switching them...")
+        print("Start date is before end date. Switched them.")
         date_start = date2
         date_end = date1
     else:
         date_start = date1
         date_end = date2
-    
+       
     return [date_start,date_end]
 
 
@@ -66,8 +76,8 @@ def formatExcel(file):
 
     # Take start and end time for whole dataset
     dates = get_dates()
-    start_date=datetime.datetime.strptime(dates[0], '%Y-%m-%d')
-    end_date=datetime.datetime.strptime(dates[1], '%Y-%m-%d')
+    start_date=dates[0]
+    end_date=dates[1]
   
 
     # Find range in days between start and end points
