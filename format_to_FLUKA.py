@@ -1,31 +1,17 @@
 # FORMAT TO FLUKA
-from math import log10, floor
 
 import utilities as ut
 import logging
-
+import os
 
 # round down both flux and second values to 3 sf
-def round_to_4sf(x):
-    """ note: change value in front of int to change no. of sfs we round to
-    """
-    if x == 0:
-        return 0
-    else:
-        return round(x, 4-int(floor(log10(abs(x))))-1)
-
-
-# convert flux into scientific notation
-def format_E(x):
-    if x == 0:
-        return '0.0'
-    else:
-        return'{:.2e}'.format(x)
-
 
 def fluka_output():
     """ """
     df, maxlen = ut.read_excel('cyclemainoperationalparameters.xlsx')
+
+    print('maxlen',maxlen)
+    #print('df=',df)
 
     countdays = []
     countx = 0
@@ -50,13 +36,15 @@ def fluka_output():
             count0 = 0
             flux.append(df[i])
         else:
-            logging.debug('There is an error here!')
+            logging.debug('Error in day count')
 
     # convert days into seconds
     countdays = [x * 24 * 60 * 60 for x in countdays]
-    countdays = list(map(round_to_4sf, countdays))
-    flux = list(map(round_to_4sf, flux))
-    flux = list(map(format_E, flux))
+    countdays = [ut.round_to_sf(x,4) for x in countdays]
+    
+    
+    flux = [ut.round_to_sf(x,4) for x in flux]
+    flux = [ut.format_E(x,2) for x in flux]
 
     logging.debug(countdays)
     logging.debug(flux)
@@ -65,35 +53,42 @@ def fluka_output():
     logging.debug(type(flux[1]))
 
     tot = len(countdays)
-
+    
     # write to FLUKA file
 
-    file = open("fluka_test.i", "r+")
+
+    with open("fluka_test.i", "w+") as file:
     # **** put something here to overwrite previous file ****
+    
     # The conditionals are to satisfy FLUKAS input requirements.
     # These ensure beam flickers ON then OFF for corresponding values of flux
 
-    for i in range(0, tot):  # could do step 3
+        for i in range(0, tot):  # could do step 3
 
         # write the comment lines
-        if flux[i] == '0.0' and i % 3 == 2:  # end of line
-            file.write("Beam OFF: "+str(countdays[i])+". seconds\n")
-        elif flux[i] != '0.0' and i % 3 == 2:
-            file.write("Beam ON: "+str(countdays[i])+". seconds\n")
-        elif flux[i] == '0.0' and i % 3 == 0:  # beginning of line
-            file.write("* Beam OFF: "+str(countdays[i])+". seconds,")
-        elif flux[i] != '0.0' and i % 3 == 0:  # beginning of line
-            file.write("* Beam ON: "+str(countdays[i])+". seconds,")
-        elif flux[i] == '0.0':
-            file.write("Beam OFF: "+str(countdays[i])+". seconds,")
-        else:
-            file.write("Beam ON: "+str(countdays[i])+". seconds,")
+            if flux[i] == '0.0' and i % 3 == 2:  # end of line
+                file.write("Beam OFF: "+str(countdays[i])+". seconds\n")
+            elif flux[i] != '0.0' and i % 3 == 2:
+                file.write("Beam ON: "+str(countdays[i])+". seconds\n")
+            elif flux[i] == '0.0' and i % 3 == 0:  # beginning of line
+                file.write("* Beam OFF: "+str(countdays[i])+". seconds,")
+            elif flux[i] != '0.0' and i % 3 == 0:  # beginning of line
+                file.write("* Beam ON: "+str(countdays[i])+". seconds,")
+            elif flux[i] == '0.0':
+                file.write("Beam OFF: "+str(countdays[i])+". seconds,")
+            else:
+                file.write("Beam ON: "+str(countdays[i])+". seconds,")
 
-    file.close()
-
+    
     # now write the IRRPROFI lines
-    with open("fluka_test.i", "r+") as file:
+    
+    # check file exists, if so am I appending or overwritng or just creating. 
+    # ask for filename
+    
+    
+    with open("fluka_test.i", "w+") as file:
         lines = file.readlines()
+        #print('lines',lines)
         numlines = len(lines)
         logging.debug("THIS IS NUMLINES= %i", numlines)
 
@@ -119,6 +114,9 @@ def fluka_output():
                            +str(flux[x+1])+(9-len(str(countdays[x+2])))*" "
                            +str(countdays[x+2]) +"."+(10-len(str(flux[x+2])))*" "
                            +str(flux[x+2])+"\n")
+                
+                # 121 list index out of range. 
+                
 
             logging.debug("hi I'm j: %i", j)
             lines.insert(2*j+1, irrprofi)
