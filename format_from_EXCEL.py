@@ -10,7 +10,7 @@ import logging
 import utilities as ut
 import datetime
 
-
+file_name = 'cyclemainoperationalparameters.xlsx'
 
 def get_dates():
     """function to select appropriate start and end date for range of
@@ -46,8 +46,9 @@ def get_dates():
         date_start = date1
         date_end = date2
        
-    check_zero(date_start,'cyclemainoperationalparameters.xlsx')
-        
+    date_start = check_zero(date_start,file_name)
+    
+    
     return [date_start,date_end]
 
 
@@ -92,6 +93,8 @@ def check_zero(start_date,file):
         logging.warning('Start date selected was during beam off time')
         print('The next closest beam on time was selected instead.')
         print('New start date=',start_date)
+        
+    return start_date
 
     
 def formatExcel(file):
@@ -154,6 +157,6 @@ def formatExcel(file):
 if __name__ == "__main__":
     
     ut.setup_logging()
-    df2 = formatExcel('cyclemainoperationalparameters.xlsx')
+    df2 = formatExcel(file_name)
     # select from menu which file to load
     ut.plot_irrad(df2)
