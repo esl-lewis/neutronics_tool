@@ -7,9 +7,6 @@ def FLUKA_output(input_file_name,output_file_name):
     
     df, maxlen = ut.read_excel(input_file_name)
 
-    print('maxlen',maxlen)
-    #print('df=',df)
-
     countdays = []
     countx = 0
     count0 = 0
@@ -86,7 +83,6 @@ def FLUKA_output(input_file_name,output_file_name):
         x = -3
         for j in range(0, numlines):
             x = x + 3
-            logging.debug("I'm x: %i", x)
             if tot % 3 == 1 and x == tot - 1:  # end line, one value
                 irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
                            +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
