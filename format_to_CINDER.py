@@ -3,26 +3,13 @@ import pandas as pd
 import numpy as np
 import logging
 from math import log10, floor
+import utilities as ut
 
 from format_from_EXCEL import formatExcel
 
-# needs slightly different format_E and rounding
 df = formatExcel('cyclemainoperationalparameters.xlsx')
 
-
-def format_E2sf(x):
-        return'{:.1E}'.format(x)
-
-
-def currentTOflux(I):
-    """ Converts beam current (µA) into flux
-    """
-    I = I/1e6  # conversion from microamps to amps
-    qp = 1.6e-19  # charge of proton in Coulombs
-    flux = I / (qp)
-    return flux
-
-df = df.apply(lambda x: currentTOflux(x['Average µA']), axis=1)
+df = df.apply(lambda x: ut.currentTOflux(x['Average µA']), axis=1)
 
 maxlen = len(df.index)-1
 
@@ -40,11 +27,11 @@ count0 = 0
     from the  dataframe and appends it to the empty sets 'flux' and 'countdays'
 """
 #  TODO
-""" for i in range(0, maxlen):
-    if is_zero:
-        if diff:
-            wdas
-"""
+for i in range(0, maxlen):
+    #if is_zero:
+    #    if diff:
+    #        wdas
+
     if df[i] > 0 and (df[i]) == (df[i+1]):
         countx += 1
     elif df[i] > 0 and (df[i]) != (df[i+1]):
@@ -59,7 +46,7 @@ count0 = 0
         flux.append(df[i])
 
 # format into scientific notation
-countdays = list(map(format_E2sf, countdays))
+countdays = [ut.format_E(x,1) for x in countdays]
 
 # arbitrarily chose 1.0E1 as a scaling factor
 FACTOR = "1.0E1"
