@@ -2,13 +2,10 @@
 
 import utilities as ut
 import logging
-import os
 
-# round down both flux and second values to 3 sf
-
-def fluka_output():
-    """ """
-    df, maxlen = ut.read_excel('cyclemainoperationalparameters.xlsx')
+def FLUKA_output(input_file_name,output_file_name):
+    
+    df, maxlen = ut.read_excel(input_file_name)
 
     print('maxlen',maxlen)
     #print('df=',df)
@@ -35,8 +32,6 @@ def fluka_output():
             countdays.append(count0)
             count0 = 0
             flux.append(df[i])
-        else:
-            logging.debug('Error in day count')
 
     # convert days into seconds
     countdays = [x * 24 * 60 * 60 for x in countdays]
@@ -56,8 +51,7 @@ def fluka_output():
     
     # write to FLUKA file
 
-
-    with open("fluka_test.i", "w+") as file:
+    with open(output_file_name, "w+") as file:
     # **** put something here to overwrite previous file ****
     
     # The conditionals are to satisfy FLUKAS input requirements.
@@ -65,28 +59,25 @@ def fluka_output():
 
         for i in range(0, tot):  # could do step 3
 
-        # write the comment lines
+        # write the comment lines. checking if have zero or non-zero flux
             if flux[i] == '0.0' and i % 3 == 2:  # end of line
                 file.write("Beam OFF: "+str(countdays[i])+". seconds\n")
-            elif flux[i] != '0.0' and i % 3 == 2:
+            elif flux[i] != '0.0' and i % 3 == 2: # end of line
                 file.write("Beam ON: "+str(countdays[i])+". seconds\n")
             elif flux[i] == '0.0' and i % 3 == 0:  # beginning of line
                 file.write("* Beam OFF: "+str(countdays[i])+". seconds,")
             elif flux[i] != '0.0' and i % 3 == 0:  # beginning of line
                 file.write("* Beam ON: "+str(countdays[i])+". seconds,")
-            elif flux[i] == '0.0':
+            elif flux[i] == '0.0': # middle of line
                 file.write("Beam OFF: "+str(countdays[i])+". seconds,")
-            else:
+            elif flux[i] != '0.0': #middle of line 
                 file.write("Beam ON: "+str(countdays[i])+". seconds,")
 
     
-    # now write the IRRPROFI lines
+    # now write the IRRPROFI lines    
+    file.close() 
     
-    # check file exists, if so am I appending or overwritng or just creating. 
-    # ask for filename
-    
-    
-    with open("fluka_test.i", "w+") as file:
+    with open(output_file_name, "r+") as file:
         lines = file.readlines()
         #print('lines',lines)
         numlines = len(lines)
@@ -96,17 +87,18 @@ def fluka_output():
         for j in range(0, numlines):
             x = x + 3
             logging.debug("I'm x: %i", x)
-            if tot % 3 == 1 and x == tot:  # end bit
+            if tot % 3 == 1 and x == tot - 1:  # end line, one value
                 irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
                            +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
                            +str(flux[x]))
-            elif tot % 3 == 2 and x == tot - 1:  # end bit
+            elif tot % 3 == 2 and x == tot - 2:  # end line, two values
                  irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
                            +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
                            +str(flux[x])+(9-len(str(countdays[x+1])))*" "
                            +str(countdays[x+1])+"."+(10-len(str(flux[x+1])))*" "
                            +str(flux[x+1]))
-            else:
+            
+            else:  # start and middle lines, 3 values per line
                 irrprofi = str("IRRPROFI"+(20 - (len(str(countdays[x]))+9))*" "
                            +str(countdays[x])+"."+(10-len(str(flux[x])))*" "
                            +str(flux[x])+(9-len(str(countdays[x+1])))*" "
@@ -115,10 +107,6 @@ def fluka_output():
                            +str(countdays[x+2]) +"."+(10-len(str(flux[x+2])))*" "
                            +str(flux[x+2])+"\n")
                 
-                # 121 list index out of range. 
-                
-
-            logging.debug("hi I'm j: %i", j)
             lines.insert(2*j+1, irrprofi)
 
         lines = "".join(lines)
@@ -129,6 +117,8 @@ def fluka_output():
 
 
 if __name__ == "__main__":
+    input_file_name = 'cyclemainoperationalparameters.xlsx'
+    output_file_name = 'fluka_test.i'
     ut.setup_logging()
-    fluka_output()
+    FLUKA_output(input_file_name,output_file_name)
     logging.info("Completed irradiation history production")
