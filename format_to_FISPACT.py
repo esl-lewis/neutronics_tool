@@ -8,11 +8,10 @@ import utilities as ut
 import logging
 
 
-def FISPACT_output():
-    """ """
-    file_name = 'cyclemainoperationalparameters.xlsx'
-    logging.info("Reading file: %s", file_name)
-    df, maxlen = ut.read_excel(file_name)
+def FISPACT_output(input_file_name,output_file_name):
+    
+    logging.info("Reading file: %s", input_file_name)
+    df, maxlen = ut.read_excel(input_file_name)
 
     countdays = []
     countx = 0
@@ -41,13 +40,17 @@ def FISPACT_output():
         else:
             logging.debug('There is an error here!')
 
+    flux = [ut.format_E(x,2) for x in flux]
+
+
+    """
     startbeamON = 0
     # Checks to see if first day the beam was on or off
     if df[0] > 0:
         startbeamON = True
     elif df[0] == 0:
         startbeamON = False
-
+    """
     numRuns = len(countdays)
     # write to FISPACT input format
     # nuclear data and intital conditions are left to user
@@ -80,5 +83,7 @@ def FISPACT_output():
 
 if __name__ == "__main__":
     ut.setup_logging()
-    FISPACT_output()
+    input_file_name = 'cyclemainoperationalparameters.xlsx'
+    output_file_name = 'fispact_test.i'
+    FISPACT_output(input_file_name,output_file_name)
     logging.info("Completed irradiation history production")
