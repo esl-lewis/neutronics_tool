@@ -191,11 +191,13 @@ def round_to_sf(variable, number_sigfig):
     else:
         return round(variable, number_sigfig-int(floor(log10(abs(variable))))-1)
 
-def format_E(variable, number_sigfig):
+def format_E(variable, number_sigfig,format_type):
     if variable == 0:
         return '0.0'
-    elif number_sigfig == 1:
-        return'{:.1E}'.format(variable)
-    elif number_sigfig == 2:
+    elif format_type == 'FLUKA':
         return'{:.2e}'.format(variable)
-# note upper and lowercase E/e is on purpose, depends on CINDER/FLUKA preferred input
+    elif format_type == 'FISPACT':
+        return'{:.4E}'.format(variable)
+    elif format_type == 'CINDER':
+        return'{:.1E}'.format(variable)
+# note upper and lowercase E/e is on purpose, depends on CINDER/FLUKA/FISPACTs preferred input
