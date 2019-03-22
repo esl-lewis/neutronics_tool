@@ -3,6 +3,9 @@
 import utilities as ut
 import logging
 
+from format_from_EXCEL import formatExcel
+
+
 def FLUKA_output(input_file_name,output_file_name):
     
     df, maxlen = ut.read_excel(input_file_name)
@@ -36,7 +39,7 @@ def FLUKA_output(input_file_name,output_file_name):
     
     
     flux = [ut.round_to_sf(x,4) for x in flux]
-    flux = [ut.format_E(x,2) for x in flux]
+    flux = [ut.format_E(x,2,'FLUKA') for x in flux]
 
     logging.debug(countdays)
     logging.debug(flux)
