@@ -2,6 +2,8 @@
 
 import utilities as ut
 
+from format_from_EXCEL import formatExcel
+
 def CINDER_output(input_file_name,output_file_name):
     df = ut.formatExcel('cyclemainoperationalparameters.xlsx')
     df = df.apply(lambda x: ut.currentTOflux(x['Average µA']), axis=1)
@@ -23,9 +25,7 @@ def CINDER_output(input_file_name,output_file_name):
     """
     #  TODO
     for i in range(0, maxlen):
-    #if is_zero:
-    #    if diff:
-    #        wdas
+
 
         if df[i] > 0 and (df[i]) == (df[i+1]):
             countx += 1
