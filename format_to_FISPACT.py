@@ -7,6 +7,8 @@ Formats the data from dataframe into FISPACT input file
 import utilities as ut
 import logging
 
+from format_from_EXCEL import formatExcel
+
 
 def FISPACT_output(input_file_name,output_file_name):
     
