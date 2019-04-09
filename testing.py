@@ -1,4 +1,4 @@
-# TESTS
+ #TESTS
 
 import utilities as ut
 import unittest
@@ -11,15 +11,30 @@ file_name = 'cyclemainoperationalparameters.xlsx'
 
 class TestUtilities(unittest.TestCase):
     
-    def test_get_dates_not_none(self):
+    # check something actually gets output
+    def test_getdates_notnone(self):
         self.assertIsNotNone(ut.get_dates(file_name))
     
-    def test_get_dates_output_type(self):
+    # check that the result is a datetime object
+    def test_getdates_outputtype(self):
         self.assertTrue((ut.get_dates(file_name)), datetime.date)
         
-    #def test_get_dates_input_type(self):
-    #    self.assertEqual(type(file_name),)    
+    def test_getdates_startbeforeend(self):
+        date_start = ut.get_dates[0]
+        date_end = ut.get_dates[1]
+        if date_start < date_end:
+            check = True
+        self.assertIsTrue(check)
         
+    def test_findrng_notnegative(self):
+        days = ut.findrng()
+        check = True 
+        if days < 0:
+            check = False
+        self.assertIsTrue(check)
+        
+    def test_findrng_wholenum(self):
+        # check wholenum
         
 if __name__ == '__main__':
     unittest.main()
