@@ -4,10 +4,18 @@ current cycles over time.
 needs xlrd package
 """
 import utilities as ut
-
-
+import pandas as pd
 
 file_name = 'cyclemainoperationalparameters.xlsx'
+
+def read_excel(excel_fname):
+    df = formatExcel(excel_fname)
+    df = df.apply(lambda x: currentTOflux(x['Average µA']), axis=1)
+    # Apply currentTOflux function down the current column
+    maxlen = len(df.index)-1
+    df = df.values
+    # Converts to numpy friendly values
+    return df, maxlen
 
 def formatExcel(file):
     """
@@ -32,7 +40,7 @@ def formatExcel(file):
     empty_dataframe = pd.DataFrame(index=rng, columns=["Average µA"])
     empty_dataframe = empty_dataframe.fillna(0)
     
-    beam_data['Dates'] = beam_data.apply(lambda x: findrng(x['Start'], x['Finish']), axis=1)
+    beam_data['Dates'] = beam_data.apply(lambda x: ut.findrng(x['Start'], x['Finish']), axis=1)
     """Uses findrng function on 'Start' and 'Finish' columns, creates a dataframe
     'Dates' containing a set of days spanning each cycle run.
     """
