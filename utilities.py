@@ -11,6 +11,7 @@ import datetime
 import pandas as pd
 
 
+
 def get_dates(file_name):
     """function to select appropriate start and end date for range of
        cycles we are interested in
@@ -45,8 +46,11 @@ def get_dates(file_name):
         date_start = date1
         date_end = date2
        
-    date_start = check_zero(date_start,file_name)    
+    date_start = check_zero(date_start,file_name)
+        
+    
     return [date_start,date_end]
+
 
 def findrng(date1, date2):
     """
@@ -55,6 +59,7 @@ def findrng(date1, date2):
     """
     days = pd.date_range(date1, date2, freq='D')
     return days
+
 
 # Check if date selected was when beam was off, if so then reset. 
 def check_zero(start_date,file):
@@ -91,6 +96,58 @@ def check_zero(start_date,file):
         
     return start_date
 
+    
+def formatExcel(file):
+    """
+    Takes data of interest in from excel file and formats to create a pandas
+    dataframe. Currently acts on whole set of data.
+
+    """
+    cols = "B,C,I"
+    beam_data = pd.read_excel(file, header=None, sheet_name='Data', skiprows=[0,1,2,3,4,5],na_values=['NA'], usecols = cols)
+    beam_data.columns = ["Start", "Finish", "Average µA"]
+    beam_data = beam_data.drop(beam_data.index[86:95])
+
+    # Take start and end time for whole dataset
+    dates = get_dates(file)
+    start_date=dates[0]
+    end_date=dates[1]
+
+    # Find range in days between start and end points
+    rng = pd.date_range(start_date, end_date, freq='D')
+
+    # Make empty dataset
+    empty_dataframe = pd.DataFrame(index=rng, columns=["Average µA"])
+    empty_dataframe = empty_dataframe.fillna(0)
+    
+    beam_data['Dates'] = beam_data.apply(lambda x: findrng(x['Start'], x['Finish']), axis=1)
+    """Uses findrng function on 'Start' and 'Finish' columns, creates a dataframe
+    'Dates' containing a set of days spanning each cycle run.
+    """
+
+    final_dataframe = pd.DataFrame()
+
+    """"This loop takes each of the days in df['Dates'], matches it to its
+    correct current value and appends that to our final dataframe df2.
+    """
+    
+    for counter, j in enumerate(beam_data.iloc[:, 3]):
+        for i in beam_data.iloc[counter-1][3]:
+            final_dataframe = final_dataframe.append({'Average µA': beam_data.iloc[counter-1][2], 'Dates': i}, ignore_index=True)
+
+    final_dataframe = final_dataframe.set_index('Dates')
+    """Uses dates column as index. """
+
+    final_dataframe = final_dataframe.combine_first(empty_dataframe)
+    """Ensures that empty values are set to zero through combining with an
+    empty dataframe"""
+
+    # Slice data frame to only keep relevant data
+    final_dataframe = final_dataframe[start_date:end_date]
+
+    return final_dataframe
+
+
 def validate_date(date_text):
     try:
         datetime.datetime.strptime(date_text, '%Y-%m-%d')
@@ -101,6 +158,7 @@ def setup_logging():
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
     logging.info("Starting irradiation history generation")
 
+
 def plot_irrad(df):
     """Plots beam current cycle against time."""
     plt.figure()
@@ -108,19 +166,31 @@ def plot_irrad(df):
     y = df["Average µA"]
     plt.step(x, y)
 
-def currentTOflux(I):
-    """ Converts beam current (µA) into flux
-    """
-    I = I/1e6  # conversion from microamps to amps
-    qp = 1.6e-19  # charge of proton in Coulombs
-    flux = I / (qp)
-    return flux
+
+def read_excel(excel_fname):
+    df = formatExcel(excel_fname)
+    df = df.apply(lambda x: currentTOflux(x['Average µA']), axis=1)
+    # Apply currentTOflux function down the current column
+    maxlen = len(df.index)-1
+    df = df.values
+    # Converts to numpy friendly values
+    return df, maxlen
 
 def round_to_sf(variable, number_sigfig):
     if variable == 0:
         return 0
     else:
         return round(variable, number_sigfig-int(floor(log10(abs(variable))))-1)
+
+def currentTOflux(I):
+    """ Converts beam current (µA) into flux
+    """
+    I = I/1e6  # conversion from microamps to amps
+    qp = 1.6e-19  # charge of proton in Coulombs
+    flux = I / (qp)
+    flux = round_to_sf(flux,15)
+    return flux
+
 
 def format_E(variable, number_sigfig,format_type):
     if variable == 0:
