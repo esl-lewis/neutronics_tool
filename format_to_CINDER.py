@@ -41,7 +41,7 @@ def CINDER_output(input_file_name,output_file_name):
             flux.append(df[i])
 
 # format into scientific notation
-    countdays = [ut.format_E(x,1) for x in countdays]
+    countdays = [ut.format_E(x,'CINDER') for x in countdays]
 
 # arbitrarily chose 1.0E1 as a scaling factor
     FACTOR = "1.0E1"
