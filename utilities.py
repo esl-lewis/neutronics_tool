@@ -6,21 +6,18 @@ import datetime
 import pandas as pd
 #import logging
 
-
+file_name = 'cyclemainoperationalparameters.xlsx'
 # Test utilities functions
 
-print(format_E(0.000324,3,'FLUKA'))
 
 class TestUtilities(unittest.TestCase):  
     
     def setUp(self):
         file_name = 'cyclemainoperationalparameters.xlsx'
     
-    # check something actually gets output
     def test_getdates_notnone(self):
         self.assertIsNotNone(ut.get_dates(file_name))
     
-    # check that the result is a datetime object
     def test_getdates_outputtype(self):
         self.assertTrue((ut.get_dates(file_name)), datetime.date)
 
@@ -31,9 +28,7 @@ class TestUtilities(unittest.TestCase):
         check = True 
         if date1 > date2:
             check = False
-        self.assertTrue(check)        
-        
-    # insert funcs that test for before and after limits
+        self.assertTrue(check)                
           
     def test_findrng_type(self):
         testdate1='2012-1-1'
@@ -64,7 +59,6 @@ class TestUtilities(unittest.TestCase):
         testdate2='2012-2-1'
         rng = ut.findrng(testdate1,testdate2)
         self.assertEqual(31+1,len(rng))
-    
     
     # checks that fnc adjusts date when beam was off
     def test_checkzero_beamOFFdate(self):
@@ -101,15 +95,14 @@ class TestUtilities(unittest.TestCase):
     def test_currentTOflux_type1(self):
         self.assertIsInstance(ut.currentTOflux(10000),float)
     
-       
     def test_formatE_FLUKA(self):
-        self.assertEqual(ut.format_E(0.000324,3,'FLUKA'),'3.24e-04')
+        self.assertEqual(ut.format_E(0.000324,'FLUKA'),'3.24e-04')
     
     def test_formatE_FISPACT(self):
-        self.assertEqual(ut.format_E(0.0012442,3,'FISPACT'),'1.2442E-03')
+        self.assertEqual(ut.format_E(0.0012442,'FISPACT'),'1.2442E-03')
         
     def test_formatE_CINDER(self):
-        self.assertEqual(ut.format_E(440012,3,'CINDER'),'4.4E+05')
+        self.assertEqual(ut.format_E(440012,'CINDER'),'4.4E+05')
     
 if __name__ == '__main__':
     unittest.main()
