@@ -42,7 +42,7 @@ def FISPACT_output(input_file_name,output_file_name):
         else:
             logging.debug('There is an error here!')
 
-    flux = [ut.format_E(x,2) for x in flux]
+    flux = [ut.format_E(x,'FISPACT') for x in flux]
 
 
     """
