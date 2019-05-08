@@ -39,8 +39,6 @@ def FISPACT_output(input_file_name,output_file_name):
             countdays.append(count0)
             count0 = 0
             flux.append(df[i])
-        else:
-            logging.debug('There is an error here!')
 
     flux = [ut.format_E(x,'FISPACT') for x in flux]
 
