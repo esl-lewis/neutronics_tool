@@ -4,22 +4,17 @@ import utilities as ut
 import unittest
 import datetime
 import pandas as pd
-#import logging
 
-
-# Test utilities functions
-
+file_name = 'cyclemainoperationalparameters.xlsx'
 
 class TestUtilities(unittest.TestCase):  
     
     def setUp(self):
         file_name = 'cyclemainoperationalparameters.xlsx'
     
-    # check something actually gets output
     def test_getdates_notnone(self):
         self.assertIsNotNone(ut.get_dates(file_name))
     
-    # check that the result is a datetime object
     def test_getdates_outputtype(self):
         self.assertTrue((ut.get_dates(file_name)), datetime.date)
 
@@ -30,9 +25,7 @@ class TestUtilities(unittest.TestCase):
         check = True 
         if date1 > date2:
             check = False
-        self.assertTrue(check)        
-        
-    # insert funcs that test for before and after limits
+        self.assertTrue(check)                
           
     def test_findrng_type(self):
         testdate1='2012-1-1'
@@ -64,7 +57,6 @@ class TestUtilities(unittest.TestCase):
         rng = ut.findrng(testdate1,testdate2)
         self.assertEqual(31+1,len(rng))
     
-    
     # checks that fnc adjusts date when beam was off
     def test_checkzero_beamOFFdate(self):
         start_date=datetime.datetime.strptime('2012-1-1',"%Y-%m-%d")
@@ -82,9 +74,6 @@ class TestUtilities(unittest.TestCase):
     def test_validatedate_throwsexception(self):
         with self.assertRaises(ValueError):ut.validate_date('2013-ar43v1-1')
     
-    #def test_plotirrad(self):
-    #    mock_df = pd.DataFrame
-    
     def test_currentTOflux_1(self): 
         self.assertAlmostEqual(ut.currentTOflux(20000),1.25e17)
         
@@ -100,12 +89,26 @@ class TestUtilities(unittest.TestCase):
     def test_currentTOflux_type1(self):
         self.assertIsInstance(ut.currentTOflux(10000),float)
     
-    # a test for correct type in currentTOflux
+    def test_formatE_FLUKA(self):
+        self.assertEqual(ut.format_E(0.000324,'FLUKA'),'3.24e-04')
+    
+    def test_formatE_FISPACT(self):
+        self.assertEqual(ut.format_E(0.0012442,'FISPACT'),'1.2442E-03')
         
-    #def test_formatE(self):
-    #    ut.format_E(0.000324,3,'FLUKA')
+    def test_formatE_CINDER(self):
+        self.assertEqual(ut.format_E(440012,'CINDER'),'4.4E+05')
+    
+    def test_round(self):
+        self.assertEqual(ut.round_to_sf(0.0043543,3),0.00435)
         
+    def test_round1(self):
+        self.assertEqual(ut.round_to_sf(3532443,3),3530000)
         
+    def test_round2(self):
+        self.assertEqual(ut.round_to_sf(0,3),0)
+    
+    def test_round3(self):
+        self.assertEqual(ut.round_to_sf(0.00392094,5),0.0039209)
     
 if __name__ == '__main__':
     unittest.main()
