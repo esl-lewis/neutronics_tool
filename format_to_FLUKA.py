@@ -39,7 +39,7 @@ def FLUKA_output(input_file_name,output_file_name):
     
     
     flux = [ut.round_to_sf(x,4) for x in flux]
-    flux = [ut.format_E(x,2,'FLUKA') for x in flux]
+    flux = [ut.format_E(x,'FLUKA') for x in flux]
 
     logging.debug(countdays)
     logging.debug(flux)
@@ -52,7 +52,6 @@ def FLUKA_output(input_file_name,output_file_name):
     # write to FLUKA file
 
     with open(output_file_name, "w+") as file:
-    # **** put something here to overwrite previous file ****
     
     # The conditionals are to satisfy FLUKAS input requirements.
     # These ensure beam flickers ON then OFF for corresponding values of flux
