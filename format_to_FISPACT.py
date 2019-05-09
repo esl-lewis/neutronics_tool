@@ -7,8 +7,6 @@ Formats the data from dataframe into FISPACT input file
 import utilities as ut
 import logging
 
-from format_from_EXCEL import formatExcel
-
 
 def FISPACT_output(input_file_name,output_file_name):
     
@@ -54,8 +52,7 @@ def FISPACT_output(input_file_name,output_file_name):
     numRuns = len(countdays)
     # write to FISPACT input format
     # nuclear data and intital conditions are left to user
-    ofile_name = "fispact_test.i"
-    file = open(ofile_name, "w")
+    file = open(output_file_name, "w")
 
     file.write("<< -----get nuclear data----- >>")
     file.write("\n<< -----set initial conditions----- >>")
@@ -78,7 +75,7 @@ def FISPACT_output(input_file_name,output_file_name):
     file.write("\nATOMS \nEND \n* END")
 
     file.close()
-    logging.info("Writing file: %s", ofile_name)
+    logging.info("Writing file: %s", output_file_name)
 
 
 if __name__ == "__main__":
