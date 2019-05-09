@@ -1,8 +1,8 @@
 # Format to CINDER
 
 import utilities as ut
+import logging
 
-from format_from_EXCEL import formatExcel
 
 def CINDER_output(input_file_name,output_file_name):
     df = ut.formatExcel('cyclemainoperationalparameters.xlsx')
@@ -48,7 +48,7 @@ def CINDER_output(input_file_name,output_file_name):
     FACTOR0 = "0.E0"
 
 
-    file = open("cinder_input", "w")
+    file = open(output_file_name, "w")
 
 # Title
     file.write("(Title) Tungsten target and proton beam\n")
@@ -77,6 +77,11 @@ def CINDER_output(input_file_name,output_file_name):
             file.write("     "+str(countdays[i])+" "+"'d'"+"\n")
 
     file.close()
-
-
-
+    logging.info("Writing file: %s", output_file_name)
+    
+if __name__ == "__main__":
+    ut.setup_logging()
+    input_file_name = 'cyclemainoperationalparameters.xlsx'
+    output_file_name = 'cinder_test.i'
+    CINDER_output(input_file_name,output_file_name)
+    logging.info("Completed irradiation history production")
