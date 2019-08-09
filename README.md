@@ -8,6 +8,6 @@ Initial processing, date selectivity and graph plotting is performed in format_f
 The goal is to enable a neutronics scientist to examine a timespan of interest and rapidly create an input file for further analysis with a modelling code. 
 
 ## requirements
-Need to have your own excel file with appropriate multiple colums start date, end date and aaverage beam current - not included in the repo
-Need to have pandas version 0.23 or greater
+Need to have your own excel file with appropriate multiple columns for start date, end date and average beam current - not included in the repo
+Need to have pandas version 0.23 or greater and xlrd. 
 
